@@ -1,6 +1,6 @@
 // Initialize a global variable at root level.
 @import "bootstrap";
-$variable: 'initial value';
+$variable: 'initial test';
 
 // Create a mixin that overrides that global variable.
 @mixin global-variable-overriding {
