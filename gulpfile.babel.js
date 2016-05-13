@@ -1,4 +1,4 @@
-import gulp from "gulp";
+import gulp from 'gulp'
 
 const helloWorld = () => {
   console.log('Hello Gulp')
