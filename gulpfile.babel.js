@@ -104,17 +104,19 @@ gulp.task('styles', ['clean-styles'], convertSass)
 gulp.task('lint', lintCode)
 
 gulp.task('clean-images', cleanImages)
-gulp.task('optimize-img', ['clean-images'], optimizeImages)
+gulp.task('images', ['clean-images'], optimizeImages)
 
 gulp.task('clean-js', cleanJS)
 gulp.task('js', ['clean-js'], prepareJS)
 
-gulp.task('default', ['styles', 'js', 'optimize-img'])
+gulp.task('help', $.taskListing)
+gulp.task('default', ['help'])
+gulp.task('serve', ['styles', 'js', 'images'])
 
 gulp.task('watch', () => {
   gulp.watch([config.sass], ['styles'])
   gulp.watch([config.allJS], ['js'])
-  gulp.watch([config.images], ['optimize-img'])
+  gulp.watch([config.images], ['images'])
 })
 
 gulp.task('connect', crankUpTheServer)
