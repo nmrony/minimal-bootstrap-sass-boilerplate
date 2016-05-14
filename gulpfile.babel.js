@@ -37,18 +37,18 @@ const lintCode = () => {
 // Styles
 const cleanStyles = (done) => {
   log('Cleaning CSS files...')
-  const allStyles = './build/css/**'
+  const allStyles = config.buildPath + 'css/**'
   return clean(allStyles, done)
 }
 
 const cleanJS = (done) => {
   log('Cleaning JS files...')
-  return clean('./build/js/**/*.js', done)
+  return clean(config.buildPath + 'js/**/*.js', done)
 }
 
 const cleanImages = (done) => {
   log('Cleaning Images files...')
-  return clean('./build/images/**/*.{jpeg,jpg,png,gif}', done)
+  return clean(config.buildPath + 'images/**/*.{jpeg,jpg,png,gif}', done)
 }
 
 const prepareJS = () => {
@@ -56,7 +56,7 @@ const prepareJS = () => {
   return gulp.src(config.allJS)
     .pipe($.concat('main.js'))
     .pipe($.if(args.production, $.uglify()))
-    .pipe(gulp.dest('./build/js/'))
+    .pipe(gulp.dest(config.buildPath + 'js/'))
     .pipe($.connect.reload())
 }
 
@@ -69,23 +69,23 @@ const convertSass = () => {
     .pipe($.autoprefixer({browsers: ['last 2 versions', 'ie >= 9']}))
     .pipe($.sourcemaps.write('./maps'))
     .pipe($.if(args.production, $.cssmin()))
-    .pipe(gulp.dest('./build/css/'))
+    .pipe(gulp.dest(config.buildPath + 'css/'))
     .pipe($.connect.reload())
 }
 
 const optimizeImages = () => {
-  return gulp.src('src/images/**/*')
+  return gulp.src(config.images)
     .pipe($.imagemin({
       optimizationLevel: 3,
       progressive: true,
       interlaced: true
     }))
-    .pipe(gulp.dest('./build/images'))
+    .pipe(gulp.dest(config.buildPath + 'images'))
 }
 
 const crankUpTheServer = () => {
   $.connect.server({
-    root: ['./build/'],
+    root: [config.buildPath],
     livereload: true,
     middleware: () => {
       return [
@@ -112,9 +112,9 @@ gulp.task('js', ['clean-js'], prepareJS)
 gulp.task('default', ['styles', 'js', 'optimize-img'])
 
 gulp.task('watch', () => {
-  gulp.watch([config.sass], ['styless'])
-  gulp.watch([config.allJS], ['lint', 'js'])
-  gulp.watch('src/images/**/*.{jpg,jpeg,png,gif}', ['optimize-img'])
+  gulp.watch([config.sass], ['styles'])
+  gulp.watch([config.allJS], ['js'])
+  gulp.watch([config.images], ['optimize-img'])
 })
 
 gulp.task('connect', crankUpTheServer)

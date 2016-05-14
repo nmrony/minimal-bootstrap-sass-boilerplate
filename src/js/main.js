@@ -1,3 +1,3 @@
-var test = 'new value again'
+var test = 'new value'
 // another test hi
 console.log(test)

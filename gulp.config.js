@@ -1,13 +1,14 @@
 export default function configurations () {
-  var srcDirectory = './src/'
+  const srcPath = './src/'
+  const buildPath = './build/'
 
-  var config = {
-    sass: srcDirectory + 'sass/main.scss',
+  return {
+    buildPath,
+    images: srcPath + 'images/**/*',
+    sass: srcPath + 'sass/main.scss',
     allJS: [
       './src/**/*.js',
       '!node_modules/**'
     ]
   }
-
-  return config
 }
