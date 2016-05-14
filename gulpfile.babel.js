@@ -54,6 +54,7 @@ const cleanImages = (done) => {
 const prepareJS = () => {
   log('Prepareing JS files...')
   return gulp.src(config.allJS)
+    .pipe($.newer(config.buildPath + 'js/'))
     .pipe($.concat('main.js'))
     .pipe($.if(args.production, $.uglify()))
     .pipe(gulp.dest(config.buildPath + 'js/'))
@@ -86,6 +87,7 @@ const optimizeImages = () => {
 const crankUpTheServer = () => {
   $.connect.server({
     root: [config.buildPath],
+    port: config.port,
     livereload: true,
     middleware: () => {
       return [
@@ -98,6 +100,13 @@ const crankUpTheServer = () => {
   })
 }
 
+const copyHTMLs = () => {
+  return gulp.src(config.htmls)
+    .pipe($.newer(config.buildPath))
+    .pipe(gulp.dest(config.buildPath))
+    .pipe($.connect.reload())
+}
+
 gulp.task('clean-styles', cleanStyles)
 gulp.task('styles', ['clean-styles'], convertSass)
 
@@ -107,16 +116,19 @@ gulp.task('clean-images', cleanImages)
 gulp.task('images', ['clean-images'], optimizeImages)
 
 gulp.task('clean-js', cleanJS)
-gulp.task('js', ['clean-js'], prepareJS)
+gulp.task('js', ['clean-js', 'lint'], prepareJS)
+
+gulp.task('html', copyHTMLs)
 
 gulp.task('help', $.taskListing)
 gulp.task('default', ['help'])
-gulp.task('serve', ['styles', 'js', 'images'])
+gulp.task('serve-dev', ['connect', 'watch'])
 
 gulp.task('watch', () => {
   gulp.watch([config.sass], ['styles'])
   gulp.watch([config.allJS], ['js'])
   gulp.watch([config.images], ['images'])
+  gulp.watch([config.htmls], ['html'])
 })
 
-gulp.task('connect', crankUpTheServer)
+gulp.task('connect', ['styles', 'js', 'images', 'html'], crankUpTheServer)

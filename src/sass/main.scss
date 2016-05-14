@@ -25,13 +25,18 @@ $variable: 'initial test';
   content: $variable;
 }
 
-$main: #0000FF;
+$main: #00FF00;
 
 body {
 	padding: 20px;
 	color: $main;
 }
-
+.home {
+  color: #2f1f29;
+}
+h1 {
+  color: $main;
+}
 img {
 	@include transition(1s);
 }
