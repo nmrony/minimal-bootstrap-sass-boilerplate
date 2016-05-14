@@ -9,7 +9,7 @@ const args = yargs.argv
 const $ = lazyGulp({lazy: true})
 const config = gulpConfig()
 
-// Helper function
+// Helper functions
 const log = (msg) => {
   if (typeof msg === 'object') {
     for (const item in msg) {
@@ -22,7 +22,7 @@ const log = (msg) => {
   }
 }
 
-const clean = (path) => del(path)
+const clean = (path, done) => del(path, done)
 
 // lint code
 const lintCode = () => {
@@ -35,19 +35,23 @@ const lintCode = () => {
 }
 
 // Styles
-const cleanStyles = () => {
+const cleanStyles = (done) => {
   log('Cleaning CSS files...')
   const allStyles = './build/css/**'
-  clean(allStyles)
+  return clean(allStyles, done)
 }
 
-const cleanJS = () => {
+const cleanJS = (done) => {
   log('Cleaning JS files...')
-  clean(config.allJS)
+  return clean('./build/js/**/*.js', done)
+}
+
+const cleanImages = (done) => {
+  log('Cleaning Images files...')
+  return clean('./build/images/**/*.{jpeg,jpg,png,gif}', done)
 }
 
 const prepareJS = () => {
-  cleanJS()
   log('Prepareing JS files...')
   return gulp.src(config.allJS)
     .pipe($.concat('main.js'))
@@ -55,8 +59,8 @@ const prepareJS = () => {
     .pipe(gulp.dest('./build/js/'))
     .pipe($.connect.reload())
 }
+
 const convertSass = () => {
-  cleanStyles()
   log('Compiling SaSS --> CSS')
   return gulp.src(config.sass)
     .pipe($.sourcemaps.init())
@@ -70,14 +74,15 @@ const convertSass = () => {
 }
 
 const optimizeImages = () => {
-  return gulp.src('src/img/**/*')
+  return gulp.src('src/images/**/*')
     .pipe($.imagemin({
       optimizationLevel: 3,
       progressive: true,
       interlaced: true
     }))
-    .pipe(gulp.dest('./build/img'))
+    .pipe(gulp.dest('./build/images'))
 }
+
 const crankUpTheServer = () => {
   $.connect.server({
     root: ['./build/'],
@@ -94,17 +99,22 @@ const crankUpTheServer = () => {
 }
 
 gulp.task('clean-styles', cleanStyles)
-gulp.task('styles', convertSass)
+gulp.task('styles', ['clean-styles'], convertSass)
 
 gulp.task('lint', lintCode)
-gulp.task('optimize-img', optimizeImages)
-gulp.task('default', ['lint', 'styles'])
-gulp.task('js', prepareJS)
+
+gulp.task('clean-images', cleanImages)
+gulp.task('optimize-img', ['clean-images'], optimizeImages)
+
+gulp.task('clean-js', cleanJS)
+gulp.task('js', ['clean-js'], prepareJS)
+
+gulp.task('default', ['styles', 'js', 'optimize-img'])
 
 gulp.task('watch', () => {
   gulp.watch([config.sass], ['styless'])
   gulp.watch([config.allJS], ['lint', 'js'])
-  gulp.watch('src/img/**/*.{jpg,png,gif}', ['imagemin'])
+  gulp.watch('src/images/**/*.{jpg,jpeg,png,gif}', ['optimize-img'])
 })
 
 gulp.task('connect', crankUpTheServer)
