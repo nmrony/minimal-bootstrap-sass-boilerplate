@@ -107,8 +107,15 @@ const copyHTMLs = () => {
     .pipe($.connect.reload())
 }
 
+const copyFonts = () => {
+  return gulp.src(config.fontsPath)
+    .pipe($.newer(config.buildPath + 'fonts'))
+    .pipe(gulp.dest(config.buildPath + 'fonts'))
+    .pipe($.connect.reload())
+}
+
 gulp.task('clean-styles', cleanStyles)
-gulp.task('styles', ['clean-styles'], convertSass)
+gulp.task('styles', ['fonts', 'clean-styles'], convertSass)
 
 gulp.task('lint', lintCode)
 
@@ -119,16 +126,18 @@ gulp.task('clean-js', cleanJS)
 gulp.task('js', ['clean-js', 'lint'], prepareJS)
 
 gulp.task('html', copyHTMLs)
+gulp.task('fonts', copyFonts)
 
 gulp.task('help', $.taskListing)
 gulp.task('default', ['help'])
-gulp.task('serve-dev', ['connect', 'watch'])
+gulp.task('serve-dev', ['watch', 'connect'])
 
 gulp.task('watch', () => {
   gulp.watch([config.sass], ['styles'])
   gulp.watch([config.allJS], ['js'])
   gulp.watch([config.images], ['images'])
   gulp.watch([config.htmls], ['html'])
+  gulp.watch([config.fontsPath], ['fonts'])
 })
 
-gulp.task('connect', ['styles', 'js', 'images', 'html'], crankUpTheServer)
+gulp.task('connect', ['styles', 'fonts', 'js', 'images', 'html'], crankUpTheServer)

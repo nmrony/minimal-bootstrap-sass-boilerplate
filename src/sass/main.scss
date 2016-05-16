@@ -1,47 +1,64 @@
-// Initialize a global variable at root level.
-@import "bootstrap";
-$variable: 'initial test';
-
-// Create a mixin that overrides that global variable.
-@mixin global-variable-overriding {
-  $variable: 'mixin value' !global;
-}
-
-.local-scope::before {
-  // Create a local variable that shadows the global one.
-  $variable: 'local value';
-
-  // Include the mixin: it overrides the global variable.
-  @include global-variable-overriding;
-
-  // Print the variable’s value.
-  // It is the **local** one, since it shadows the global one.
-  content: $variable;
-}
-
-// Print the variable in another selector that does no shadowing.
-// It is the **global** one, as expected.
-.other-local-scope::before {
-  content: $variable;
-}
-
-$main: #00FF00;
+@import 'vendors/bootstrap';
+@import 'app/mixins';
 
 body {
-	padding: 20px;
-	color: $main;
-}
-.home {
-  color: #2f1f29;
-}
+  @include Roboto-Normal;
+  font-size: 100%;
+  line-height: 1.4; }
+
+.container {
+  width: 40%;
+  margin: 0 auto; }
+
+h1, h2, h3 {
+  @include Bebasneue-Neu-Bold;
+  margin: 0; }
+
 h1 {
-  color: $main;
-}
-img {
-	@include transition(1s);
+  font-size: 2em; }
+
+h2 {
+  font-size: 1.6em; }
+
+h3 {
+  font-size: 1.2em; }
+
+p {
+  margin: 0 0 1em 0; }
+
+strong {
+  @include Bebasneue-Neu-Bold; }
+
+em {
+  @include Ubuntu-Regular-Italic; }
+
+p.light {
+  @include Ubuntu-Light;
+  em { @include Ubuntu-Light-Italic; }
 }
 
-img:hover {
-	@include rotate(45deg);
-	@include opacity(.5);
+p.bold {
+  @include Bebasneue-Neu-Bold;
+  em { @include Bebasneue-Neu-Bold; }
 }
+
+.warning {
+  border: 1px solid #CC0000;
+  border-radius: 2px;
+  background-color: rgba(#CC0000, 0.1);
+  color: #CC0000;
+  font-size: 0.75em;
+  display: none;
+  padding: 0.25em;
+  width: 40%;
+  margin: 1em auto;
+}
+
+@-moz-document url-prefix() {
+  .warning {
+    display: block;
+  }
+}
+
+
+
