@@ -1,6 +1,7 @@
 @import 'font-face';
-@import url(https://fonts.googleapis.com/css?family=Roboto:400,300,400italic,500,500italic,700,700italic);
+@import 'google-fonts';
 
+@include google-fonts('Roboto:400,300,400italic,500,500italic,700,700italic');
 @include font-face(Ubuntu-Light, 'https://dl.dropbox.com/u/1220078/ubuntu-new/Ubuntu-Light-webfont', 300, normal);
 @include font-face(Ubuntu-Light-Italic, 'https://dl.dropbox.com/u/1220078/ubuntu-new/Ubuntu-Light-Italic-webfont', 300, italic);
 @include font-face(Ubuntu-Regular, 'https://dl.dropbox.com/u/1220078/ubuntu-new/Ubuntu-Regular-webfont', 400, normal);
