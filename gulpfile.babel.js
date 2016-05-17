@@ -51,11 +51,6 @@ const cleanImages = (done) => {
   return clean(config.buildPath + 'images/**/*.{jpeg,jpg,png,gif}', done)
 }
 
-const cleanFonts = (done) => {
-  log('Cleaning fonts files...')
-  return clean(config.buildPath + 'fonts', done)
-}
-
 const prepareJS = () => {
   log('Prepareing JS files...')
   return gulp.src(config.allJS)
@@ -131,15 +126,12 @@ gulp.task('clean-js', cleanJS)
 gulp.task('js', ['clean-js', 'lint'], prepareJS)
 
 gulp.task('html', copyHTMLs)
-
-gulp.task('clean-fonts', cleanFonts)
-gulp.task('fonts', ['clean-fonts'], copyFonts)
+gulp.task('fonts', copyFonts)
 
 gulp.task('help', $.taskListing)
 gulp.task('default', ['help'])
-gulp.task('serve-dev', ['watch', 'connect'])
-
-gulp.task('watch', () => {
+gulp.task('serve-dev', ['connect'], () => {
+  log('Watching JS, SCSS, Images, HTML and fonts files...')
   gulp.watch([config.sass], ['styles'])
   gulp.watch([config.allJS], ['js'])
   gulp.watch([config.images], ['images'])
