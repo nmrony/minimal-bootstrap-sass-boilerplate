@@ -1,6 +1,7 @@
 import gulp from 'gulp'
 import yargs from 'yargs'
 import del from 'del'
+import modRewrite from 'connect-modrewrite'
 import lazyGulp from 'gulp-load-plugins'
 import gulpConfig from './gulp.config'
 
@@ -22,12 +23,12 @@ const log = (msg) => {
   }
 }
 
-const clean = (path, done) => del(path).then(done)
+const clean = (path, done) => del(path, done)
 
 // lint code
 const lintCode = () => {
   log('Analyzing code for error and styles...')
-  return gulp.src(config.alljs)
+  return gulp.src(config.allJS)
     .pipe($.if(args.showLog, $.print()))
     .pipe($.eslint({extends: 'standard'}))
     .pipe($.eslint.format())
