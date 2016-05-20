@@ -1,61 +1,13 @@
-@import 'vendors/bootstrap';
-@import 'app/mixins';
+@import '../vendors/bootstrap';
+/**
+Custom code
+*/
+$blue: #fff;
 
 body {
-  @include Roboto-Normal;
-  font-size: 100%;
-  line-height: 1.4; }
-
-.container {
-  width: 40%;
-  margin: 0 auto; }
-
-h1, h2, h3 {
-  @include Bebasneue-Neu-Bold;
-  margin: 0; }
-
-h1 {
-  font-size: 2em; }
-
-h2 {
-  font-size: 1.6em; }
-
-h3 {
-  font-size: 1.2em; }
-
-p {
-  margin: 0 0 1em 0; }
-
-strong {
-  @include Bebasneue-Neu-Bold; }
-
-em {
-  @include Ubuntu-Regular-Italic; }
-
-p.light {
-  @include Ubuntu-Light;
-  em { @include Ubuntu-Light-Italic; }
+  background: #00f;
 }
-
-p.bold {
-  @include Bebasneue-Neu-Bold;
-  em { @include Bebasneue-Neu-Bold; }
-}
-
-.warning {
-  border: 1px solid #CC0000;
-  border-radius: 2px;
-  background-color: rgba(#CC0000, 0.1);
-  color: #CC0000;
-  font-size: 0.75em;
-  display: none;
-  padding: 0.25em;
-  width: 40%;
-  margin: 1em auto;
-}
-
-@-moz-document url-prefix() {
-  .warning {
-    display: block;
-  }
+.style-test {
+  transform-origin: center bottom;
+  color: $blue;
 }

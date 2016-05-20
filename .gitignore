@@ -100,3 +100,5 @@ obj
 
 # Ignore Web Storm #
 .idea
+.tmp
+serve-dev

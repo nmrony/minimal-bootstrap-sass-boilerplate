@@ -1,13 +1,13 @@
 import gulp from 'gulp'
 import yargs from 'yargs'
 import del from 'del'
-import modRewrite from 'connect-modrewrite'
 import lazyGulp from 'gulp-load-plugins'
 import gulpConfig from './gulp.config'
 
 const args = yargs.argv
 const $ = lazyGulp({lazy: true})
 const config = gulpConfig()
+var port = process.env.PORT || config.defaultPort
 
 // Helper functions
 const log = (msg) => {
@@ -22,12 +22,12 @@ const log = (msg) => {
   }
 }
 
-const clean = (path, done) => del(path, done)
+const clean = (path, done) => del(path).then(done)
 
 // lint code
 const lintCode = () => {
   log('Analyzing code for error and styles...')
-  return gulp.src(config.allJS)
+  return gulp.src(config.alljs)
     .pipe($.if(args.showLog, $.print()))
     .pipe($.eslint({extends: 'standard'}))
     .pipe($.eslint.format())
@@ -35,116 +35,72 @@ const lintCode = () => {
 }
 
 // Styles
-const cleanStyles = (done) => {
+const cleanStyles = () => {
   log('Cleaning CSS files...')
-  const allStyles = config.buildPath + 'css/**'
-  return clean(allStyles, done)
+  const allStyles = config.temp + '**/*.css'
+  clean(allStyles)
 }
 
-const cleanJS = (done) => {
-  log('Cleaning JS files...')
-  return clean(config.buildPath + 'js/**/*.js', done)
-}
-
-const cleanImages = (done) => {
-  log('Cleaning Images files...')
-  return clean(config.buildPath + 'images/**/*.{jpeg,jpg,png,gif}', done)
-}
-
-const cleanFonts = (done) => {
-  log('Cleaning fonts files...')
-  return clean(config.buildPath + 'fonts', done)
-}
-
-const prepareJS = () => {
-  log('Prepareing JS files...')
-  return gulp.src(config.allJS)
-    .pipe($.newer(config.buildPath + 'js/'))
-    .pipe($.concat('main.js'))
-    .pipe($.if(args.production, $.uglify()))
-    .pipe(gulp.dest(config.buildPath + 'js/'))
-    .pipe($.connect.reload())
-}
-
-const convertSass = () => {
+const compileStyles = () => {
   log('Compiling SaSS --> CSS')
   return gulp.src(config.sass)
-    .pipe($.sourcemaps.init())
+    // .pipe($.sourcemaps.init())
     .pipe($.plumber())
     .pipe($.sass())
-    .pipe($.autoprefixer({browsers: ['last 2 versions', 'ie >= 9']}))
-    .pipe($.sourcemaps.write('./maps'))
-    .pipe($.if(args.production, $.cssmin()))
-    .pipe(gulp.dest(config.buildPath + 'css/'))
-    .pipe($.connect.reload())
+    .pipe($.autoprefixer({browsers: ['last 2 versions', 'ie >= 9', '> 5%']}))
+    // .pipe($.sourcemaps.write('./maps'))
+    .pipe(gulp.dest(config.temp))
 }
 
-const optimizeImages = () => {
-  return gulp.src(config.images)
-    .pipe($.imagemin({
-      optimizationLevel: 3,
-      progressive: true,
-      interlaced: true
-    }))
-    .pipe(gulp.dest(config.buildPath + 'images'))
+const watchSaasFiles = () => {
+  gulp.watch([config.sass], ['styles'])
 }
 
-const crankUpTheServer = () => {
-  $.connect.server({
-    root: [config.buildPath],
-    port: config.port,
-    livereload: true,
-    middleware: () => {
-      return [
-        modRewrite([
-          '^/$ /index.html',
-          '^([^\\.]+)$ $1.html'
-        ])
-      ]
-    }
-  })
+const wireupFiles = () => {
+  log('Wireup vendor files and js files into html files')
+
+  const target = gulp.src(config.htmls)
+  const vendors = gulp.src(config.vendorFiles, {read: false})
+  const appJS = gulp.src(config.appJS, {read: false})
+
+  return target
+    .pipe($.inject(vendors, {name: 'vendor'}))
+    .pipe($.inject(appJS))
+    .pipe(gulp.dest(config.devPath))
 }
 
-const copyHTMLs = () => {
-  return gulp.src(config.htmls)
-    .pipe($.newer(config.buildPath))
-    .pipe(gulp.dest(config.buildPath))
-    .pipe($.connect.reload())
+const inject = () => {
+  log('Wireup css into html files')
+
+  const target = gulp.src(config.devPath + '*.html')
+  const appCSS = gulp.src(config.appCSS, {read: false})
+
+  return target
+    .pipe($.inject(appCSS))
+    .pipe(gulp.dest(config.devPath))
 }
 
-const copyFonts = () => {
-  return gulp.src(config.fontsPath)
-    .pipe($.newer(config.buildPath + 'fonts'))
-    .pipe(gulp.dest(config.buildPath + 'fonts'))
-    .pipe($.connect.reload())
-}
+const serveDev = () => {
+  const isDev = true
 
+  const nodeOptions = {
+    script: config.nodeServer,
+    delayTime: 1,
+    env: {
+      PORT: port,
+      NODE_ENV: isDev ? 'dev' : 'production'
+    },
+    watch: [config.server]
+  }
+  return $.nodemon(nodeOptions)
+}
+// tasks
 gulp.task('clean-styles', cleanStyles)
-gulp.task('styles', ['fonts', 'clean-styles'], convertSass)
-
+gulp.task('styles', ['clean-styles'], compileStyles)
+gulp.task('sass-watcher', watchSaasFiles)
 gulp.task('lint', lintCode)
 
-gulp.task('clean-images', cleanImages)
-gulp.task('images', ['clean-images'], optimizeImages)
+gulp.task('wireup', wireupFiles)
+gulp.task('inject', ['wireup', 'styles'], inject)
 
-gulp.task('clean-js', cleanJS)
-gulp.task('js', ['clean-js', 'lint'], prepareJS)
-
-gulp.task('html', copyHTMLs)
-
-gulp.task('clean-fonts', cleanFonts)
-gulp.task('fonts', ['clean-fonts'], copyFonts)
-
-gulp.task('help', $.taskListing)
-gulp.task('default', ['help'])
-gulp.task('serve-dev', ['watch', 'connect'])
-
-gulp.task('watch', () => {
-  gulp.watch([config.sass], ['styles'])
-  gulp.watch([config.allJS], ['js'])
-  gulp.watch([config.images], ['images'])
-  gulp.watch([config.htmls], ['html'])
-  gulp.watch([config.fontsPath], ['fonts'])
-})
-
-gulp.task('connect', ['styles', 'fonts', 'js', 'images', 'html'], crankUpTheServer)
+gulp.task('serve-dev', ['inject'], serveDev)
