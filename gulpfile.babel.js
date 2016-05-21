@@ -1,6 +1,7 @@
 import gulp from 'gulp'
 import yargs from 'yargs'
 import del from 'del'
+import browserSync from 'browser-sync'
 import lazyGulp from 'gulp-load-plugins'
 import gulpConfig from './gulp.config'
 
@@ -23,6 +24,34 @@ const log = (msg) => {
 }
 
 const clean = (path, done) => del(path, done)
+
+const startBrowserSync = () => {
+  if (browserSync.active) {
+    return
+  }
+
+  log('Starting browser-sync on port ' + port)
+
+  const options = {
+    proxy: 'localhost:' + port,
+    port: 3000,
+    files: [config.srcPath + '**/*.*'],
+    ghostMode: {
+      clicks: true,
+      location: false,
+      forms: true,
+      scroll: true
+    },
+    injectChanges: true,
+    logFileChanges: true,
+    logLevel: 'debug',
+    logPrefix: 'gulp-patterns',
+    notify: true,
+    reloadDelay: 1000
+  }
+
+  browserSync(options)
+}
 
 // lint code
 const lintCode = () => {
@@ -93,7 +122,10 @@ const serveDev = () => {
     watch: [config.server]
   }
   return $.nodemon(nodeOptions)
-    .on('start', () => log('*** node server started ***'))
+    .on('start', () => {
+      log('*** node server started ***')
+      startBrowserSync()
+    })
     .on('restart', ['lint'], (files) => log('*** node server restarted ***\r\nfiles changes on restart \r\n' + files))
     .on('crash', () => log('*** node server crashed ***'))
     .on('exit', () => log('*** node server exited gracefully ***'))

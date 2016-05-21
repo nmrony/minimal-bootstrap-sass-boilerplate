@@ -1,4 +1,5 @@
 var test = 'new value'
 // another test hi
 console.log(test)
-window.alert('hi bros!!')
+console.log('hi browser sync')
+window.alert('Woow!!')

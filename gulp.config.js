@@ -4,13 +4,12 @@ export default function configurations () {
   const buildPath = './build/'
   const vendorPath = srcPath + 'vendors/'
   const fontsPath = srcPath + 'fonts/**/*'
-
   const temp = './.tmp/'
-  const port = 8080
+
   return {
+    srcPath,
     buildPath,
     devPath,
-    port,
     fontsPath,
     vendorPath,
     temp,
@@ -34,7 +33,7 @@ export default function configurations () {
     /**
     Node Settings
     */
-    defaultPort: 3000,
+    defaultPort: 8000,
     server: './server',
     nodeServer: './server/server.js'
   }
