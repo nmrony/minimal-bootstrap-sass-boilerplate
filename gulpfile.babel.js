@@ -66,18 +66,18 @@ const wireupFiles = () => {
   return target
     .pipe($.inject(vendors, {name: 'vendor'}))
     .pipe($.inject(appJS))
-    .pipe(gulp.dest(config.devPath))
+    .pipe(gulp.dest(config.temp))
 }
 
 const inject = () => {
   log('Wireup css into html files')
 
-  const target = gulp.src(config.devPath + '*.html')
+  const target = gulp.src(config.temp + '*.html')
   const appCSS = gulp.src(config.appCSS, {read: false})
 
   return target
     .pipe($.inject(appCSS))
-    .pipe(gulp.dest(config.devPath))
+    .pipe(gulp.dest(config.temp))
 }
 
 const serveDev = () => {
@@ -93,6 +93,10 @@ const serveDev = () => {
     watch: [config.server]
   }
   return $.nodemon(nodeOptions)
+    .on('start', () => log('*** node server started ***'))
+    .on('restart', ['lint'], (files) => log('*** node server restarted ***\r\nfiles changes on restart \r\n' + files))
+    .on('crash', () => log('*** node server crashed ***'))
+    .on('exit', () => log('*** node server exited gracefully ***'))
 }
 // tasks
 gulp.task('clean-styles', cleanStyles)

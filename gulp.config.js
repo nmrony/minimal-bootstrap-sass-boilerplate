@@ -24,7 +24,7 @@ export default function configurations () {
       vendorPath + '**/*.css'
     ],
     // all js that we want to check
-    alljs: [
+    allJS: [
       './src/**/*.js',
       './*.js',
       '!./src/vendors/**',
