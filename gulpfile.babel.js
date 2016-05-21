@@ -1,7 +1,6 @@
 import gulp from 'gulp'
 import yargs from 'yargs'
 import del from 'del'
-import modRewrite from 'connect-modrewrite'
 import lazyGulp from 'gulp-load-plugins'
 import gulpConfig from './gulp.config'
 
