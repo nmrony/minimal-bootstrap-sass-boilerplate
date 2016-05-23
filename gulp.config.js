@@ -18,6 +18,7 @@ export default function configurations () {
     sass: srcPath + 'sass/main.scss',
     appJS: srcPath + 'js/**/*.js',
     appCSS: temp + 'main.css',
+    fonts: srcPath + 'fonts/**/*.*',
     vendorFiles: [
       vendorPath + '**/*.js',
       vendorPath + '**/*.css'
@@ -35,6 +36,7 @@ export default function configurations () {
     */
     defaultPort: 8000,
     server: './server',
-    nodeServer: './server/server.js'
+    nodeServer: './server/server.js',
+    browserReloadDelay: 1000
   }
 }
