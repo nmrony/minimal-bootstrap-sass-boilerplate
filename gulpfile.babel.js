@@ -185,6 +185,8 @@ const optimize = () => {
     .src(config.temp + '*.html')
     .pipe($.plumber())
     .pipe(assets)
+    .pipe($.if('*.js', $.uglify()))
+    .pipe($.if('*.css', $.csso()))
     .pipe(gulp.dest(config.buildPath))
 }
 
@@ -236,5 +238,5 @@ gulp.task('wireup', wireupFiles)
 gulp.task('inject', ['wireup', 'styles'], inject)
 
 gulp.task('serve-dev', ['inject'], serveDev)
-gulp.task('optimize', ['inject'], optimize)
+gulp.task('optimize', ['inject', 'fonts', 'images'], optimize)
 gulp.task('serve-build', ['optimize'], serveBuild)
