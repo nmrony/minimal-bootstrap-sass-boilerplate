@@ -104,7 +104,7 @@ const watchSaasFiles = () => {
 
 // clean
 const cleanProject = () => {
-  const delconfig = [].concat(config.buildPath, config.temp + '**/*.css')
+  const delconfig = [].concat(config.buildPath, config.temp + '**/*.css', config.temp + '**/*.html')
   log('Cleaning ' + $.util.colors.blue(delconfig))
   clean(delconfig)
 }
@@ -237,6 +237,6 @@ gulp.task('clean-code', cleanCode)
 gulp.task('wireup', wireupFiles)
 gulp.task('inject', ['wireup', 'styles'], inject)
 
-gulp.task('serve-dev', ['inject'], serveDev)
+gulp.task('serve-dev', ['clean', 'inject'], serveDev)
 gulp.task('optimize', ['inject', 'fonts', 'images'], optimize)
 gulp.task('serve-build', ['optimize'], serveBuild)
