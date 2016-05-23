@@ -29,25 +29,30 @@ const log = (msg) => {
 
 const clean = (path, done) => del(path, done)
 
-const startBrowserSync = () => {
+const startBrowserSync = (isDev) => {
   if (browserSync.active || args.noSync) {
     return
   }
 
   log('Starting browser-sync on port ' + port)
 
-  gulp.watch([config.sass], ['styles'])
+  if (isDev) {
+    gulp.watch([config.sass], ['styles'])
     .on('change', changeEvent)
+  } else {
+    gulp.watch([config.sass, config.allJS, config.htmls], ['optimize', browserSync.reload])
+    .on('change', changeEvent)
+  }
 
   const options = {
     proxy: 'localhost:' + port,
     port: 3000,
-    files: [
+    files: isDev ? [
       config.srcPath + '**/*.*',
       '!' + config.sass,
       '!' + config.vendorFiles,
       config.temp + '**/*.css'
-    ],
+    ] : [],
     ghostMode: {
       clicks: true,
       location: false,
@@ -166,9 +171,24 @@ const inject = () => {
     .pipe(gulp.dest(config.temp))
 }
 
+const serveBuild = () => {
+  return serve(false)
+}
 const serveDev = () => {
-  const isDev = true
+  return serve(true)
+}
 
+const optimize = () => {
+  log('Optimizing the javascripts, css and htmls...')
+  const assets = $.useref({searchPath: './'})
+  return gulp
+    .src(config.temp + '*.html')
+    .pipe($.plumber())
+    .pipe(assets)
+    .pipe(gulp.dest(config.buildPath))
+}
+
+const serve = (isDev) => {
   const nodeOptions = {
     script: config.nodeServer,
     delayTime: 1,
@@ -181,7 +201,7 @@ const serveDev = () => {
   return $.nodemon(nodeOptions)
     .on('start', () => {
       log('*** node server started ***')
-      startBrowserSync()
+      startBrowserSync(isDev)
     })
     .on('restart', ['lint'], (files) => {
       log('*** node server restarted ***\r\nfiles changes on restart \r\n' + files)
@@ -192,16 +212,6 @@ const serveDev = () => {
     })
     .on('crash', () => log('*** node server crashed ***'))
     .on('exit', () => log('*** node server exited gracefully ***'))
-}
-
-const optimize = () => {
-  log('Optimizing the javascripts, css and htmls...')
-  const assets = $.useref({searchPath: './'})
-  return gulp
-    .src(config.temp + '*.html')
-    .pipe($.plumber())
-    .pipe(assets)
-    .pipe(gulp.dest(config.buildPath))
 }
 // tasks
 gulp.task('help', $.taskListing)
@@ -227,3 +237,4 @@ gulp.task('inject', ['wireup', 'styles'], inject)
 
 gulp.task('serve-dev', ['inject'], serveDev)
 gulp.task('optimize', ['inject'], optimize)
+gulp.task('serve-build', ['optimize'], serveBuild)
