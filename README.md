@@ -10,6 +10,7 @@ In Terminal run the gulp help command to get available tasks list
 
 ```sh
 $gulp help
+
 Main Tasks
 ------------------------------
     clean
